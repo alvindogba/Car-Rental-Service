@@ -1,8 +1,10 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { Car, DollarSign, Shield, Clock, CreditCard, Smartphone, Play, CheckCircle, Users, Star } from 'lucide-react';
+import { Car, DollarSign, Shield, CreditCard, Smartphone, Play, CheckCircle, Users, Star } from 'lucide-react';
 import AnimatedSection from '../components/AnimatedSection';
 import AnimatedCounter from '../components/AnimatedCounter';
+import momoLogo from '../assets/images/momoLogo.png';
+import orangeMoneyLogo from '../assets/images/orangeMoneyLogo.png';
 
 const HomePage: React.FC = () => {
   return (
@@ -318,7 +320,7 @@ const HomePage: React.FC = () => {
             <AnimatedSection animation="scaleIn" delay={200} className="bg-gradient-to-br from-orange-50 to-orange-100 p-8 rounded-2xl text-center group hover:shadow-xl transition-all duration-300 transform hover:-translate-y-2">
               <div className="relative mb-6">
                 <img
-                  src="https://images.pexels.com/photos/4386321/pexels-photo-4386321.jpeg?auto=compress&cs=tinysrgb&w=400"
+                  src={orangeMoneyLogo}
                   alt="Orange Money payment"
                   className="w-20 h-20 object-cover rounded-full mx-auto shadow-lg transition-transform duration-300 group-hover:scale-110"
                 />
@@ -335,7 +337,7 @@ const HomePage: React.FC = () => {
             <AnimatedSection animation="scaleIn" delay={300} className="bg-gradient-to-br from-red-50 to-red-100 p-8 rounded-2xl text-center group hover:shadow-xl transition-all duration-300 transform hover:-translate-y-2">
               <div className="relative mb-6">
                 <img
-                  src="https://images.pexels.com/photos/4386321/pexels-photo-4386321.jpeg?auto=compress&cs=tinysrgb&w=400"
+                  src={momoLogo}
                   alt="Lonestar Mobile Money payment"
                   className="w-20 h-20 object-cover rounded-full mx-auto shadow-lg transition-transform duration-300 group-hover:scale-110"
                 />

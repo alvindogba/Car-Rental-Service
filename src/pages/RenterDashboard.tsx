@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
-import { Calendar, Clock, MapPin, DollarSign, Star, Search, Filter } from 'lucide-react';
+import { Calendar, MapPin, DollarSign, Star, Search,  } from 'lucide-react';
 
 interface Booking {
   id: string;

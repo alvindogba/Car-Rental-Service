@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
-import { Link } from 'react-router-dom';
 import { Plus, Car, DollarSign, Calendar, Edit, Trash2, Eye } from 'lucide-react';
+import { useSelector } from 'react-redux';
+import { RootState } from '../../Store/store';
 
 interface Vehicle {
   id: string;
@@ -78,7 +79,7 @@ const mockBookings: Booking[] = [
 
 const OwnerDashboard: React.FC = () => {
   const [activeTab, setActiveTab] = useState<'vehicles' | 'bookings'>('vehicles');
-  
+  const { user } = useSelector((state: RootState) => state.auth);
   const totalEarnings = mockVehicles.reduce((sum, vehicle) => sum + vehicle.totalEarnings, 0);
   const totalBookings = mockVehicles.reduce((sum, vehicle) => sum + vehicle.totalBookings, 0);
 
@@ -109,7 +110,7 @@ const OwnerDashboard: React.FC = () => {
         {/* Header */}
         <div className="mb-8">
           <h1 className="text-3xl font-bold text-gray-900 mb-2">
-            Your Car Business Dashboard
+            Welcome, {user.name}! Owner Dashboard
           </h1>
           <p className="text-gray-600">
             Manage your vehicles and track your earnings

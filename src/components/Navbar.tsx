@@ -1,15 +1,20 @@
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { Car, Menu, X, User, LogOut } from 'lucide-react';
-import { useAuth } from '../contexts/AuthContext';
+import { removeCredentials } from '../../Store/Auth/authSlice';
+import { useDispatch } from 'react-redux';
+//import the getCurrentUser query
+import {useGetCurrentUserQuery} from '../../Store/Auth/authApi';
 
 const Navbar: React.FC = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
-  const { user, logout } = useAuth();
+  const dispatch = useDispatch();
   const navigate = useNavigate();
+  //extrict the user data from the getCurrentUser query
+  const { data: user } = useGetCurrentUserQuery();
 
   const handleLogout = () => {
-    logout();
+    dispatch(removeCredentials());
     navigate('/');
   };
 

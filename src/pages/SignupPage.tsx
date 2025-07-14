@@ -2,14 +2,17 @@ import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useForm } from 'react-hook-form';
 import { Eye, EyeOff, Car, User } from 'lucide-react';
-import { useAuth } from '../contexts/AuthContext';
 import AnimatedSection from '../components/AnimatedSection';
+import { useSignUpMutation } from '../../Store/Auth/authApi';
+import { setCredentials } from '../../Store/Auth/authSlice';
+import { useDispatch } from 'react-redux';
 
 interface SignupFormData {
   name: string;
   email: string;
   password: string;
-  confirmPassword: string;
+  confirmPassword: string; // used only for validation
+  phone: string;
   role: 'renter' | 'owner';
 }
 
@@ -17,27 +20,45 @@ const SignupPage: React.FC = () => {
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [selectedRole, setSelectedRole] = useState<'renter' | 'owner' | null>(null);
-  const { signup, loading } = useAuth();
+  const [signupError, setSignupError] = useState<string | null>(null);
+
+  const [signUp, { isLoading }] = useSignUpMutation();
   const navigate = useNavigate();
+  const dispatch = useDispatch();
 
   const {
     register,
     handleSubmit,
     formState: { errors },
     watch,
-    setValue
+    setValue,
+    reset,
   } = useForm<SignupFormData>();
 
   const password = watch('password');
 
   const onSubmit = async (data: SignupFormData) => {
     if (!selectedRole) return;
-    
+
     try {
-      await signup(data.email, data.password, data.name, selectedRole);
-      navigate(selectedRole === 'renter' ? '/renter-dashboard' : '/owner-dashboard');
-    } catch (error) {
+      // Destructure only the required fields (exclude confirmPassword)
+      const { name, email, password, phone } = data;
+
+      const signupData = {
+        name,
+        email,
+        password,
+        phone,
+        role: selectedRole,
+      };
+
+      const response = await signUp(signupData).unwrap();
+      dispatch(setCredentials(response));
+      reset(); // Clear form
+      navigate('/login');
+    } catch (error: any) {
       console.error('Signup failed:', error);
+      setSignupError(error?.data?.message || 'Signup failed. Please try again.');
     }
   };
 
@@ -53,12 +74,8 @@ const SignupPage: React.FC = () => {
           <div className="mx-auto h-16 w-16 flex items-center justify-center bg-blue-600 rounded-2xl shadow-lg transform hover:scale-110 transition-transform duration-300">
             <Car className="h-10 w-10 text-white" />
           </div>
-          <h2 className="mt-6 text-center text-3xl font-extrabold text-gray-900">
-            Create Your Account
-          </h2>
-          <p className="mt-2 text-center text-sm text-gray-600">
-            Join RideShare LR and start today!
-          </p>
+          <h2 className="mt-6 text-3xl font-extrabold text-gray-900">Create Your Account</h2>
+          <p className="mt-2 text-sm text-gray-600">Join RideShare LR and start today!</p>
         </div>
 
         <div className="bg-white p-8 rounded-2xl shadow-xl">
@@ -97,7 +114,9 @@ const SignupPage: React.FC = () => {
                 </button>
               </div>
               {!selectedRole && (
-                <p className="mt-1 text-sm text-red-600 animate-pulse">Please select what you want to do</p>
+                <p className="mt-1 text-sm text-red-600 animate-pulse">
+                  Please select what you want to do
+                </p>
               )}
             </div>
 
@@ -127,8 +146,8 @@ const SignupPage: React.FC = () => {
                   required: 'Email is required',
                   pattern: {
                     value: /^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$/i,
-                    message: 'Please enter a valid email address'
-                  }
+                    message: 'Please enter a valid email address',
+                  },
                 })}
                 type="email"
                 className="block w-full px-4 py-3 border border-gray-300 rounded-xl shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-300"
@@ -136,6 +155,28 @@ const SignupPage: React.FC = () => {
               />
               {errors.email && (
                 <p className="mt-1 text-sm text-red-600 animate-pulse">{errors.email.message}</p>
+              )}
+            </div>
+
+            {/* Phone */}
+            <div>
+              <label htmlFor="phone" className="block text-sm font-medium text-gray-700 mb-2">
+                Phone Number
+              </label>
+              <input
+                {...register('phone', {
+                  required: 'Phone number is required',
+                  pattern: {
+                    value: /^[0-9]{10}$/,
+                    message: 'Please enter a valid phone number',
+                  },
+                })}
+                type="tel"
+                className="block w-full px-4 py-3 border border-gray-300 rounded-xl shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-300"
+                placeholder="Enter your phone number"
+              />
+              {errors.phone && (
+                <p className="mt-1 text-sm text-red-600 animate-pulse">{errors.phone.message}</p>
               )}
             </div>
 
@@ -150,8 +191,8 @@ const SignupPage: React.FC = () => {
                     required: 'Password is required',
                     minLength: {
                       value: 6,
-                      message: 'Password must be at least 6 characters'
-                    }
+                      message: 'Password must be at least 6 characters',
+                    },
                   })}
                   type={showPassword ? 'text' : 'password'}
                   className="block w-full px-4 py-3 border border-gray-300 rounded-xl shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-300"
@@ -162,11 +203,7 @@ const SignupPage: React.FC = () => {
                   className="absolute inset-y-0 right-0 pr-3 flex items-center hover:text-blue-600 transition-colors duration-300"
                   onClick={() => setShowPassword(!showPassword)}
                 >
-                  {showPassword ? (
-                    <EyeOff className="h-5 w-5 text-gray-400" />
-                  ) : (
-                    <Eye className="h-5 w-5 text-gray-400" />
-                  )}
+                  {showPassword ? <EyeOff className="h-5 w-5 text-gray-400" /> : <Eye className="h-5 w-5 text-gray-400" />}
                 </button>
               </div>
               {errors.password && (
@@ -183,7 +220,8 @@ const SignupPage: React.FC = () => {
                 <input
                   {...register('confirmPassword', {
                     required: 'Please confirm your password',
-                    validate: (value) => value === password || 'Passwords do not match'
+                    validate: (value) =>
+                      value === password || 'Passwords do not match',
                   })}
                   type={showConfirmPassword ? 'text' : 'password'}
                   className="block w-full px-4 py-3 border border-gray-300 rounded-xl shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-300"
@@ -206,13 +244,19 @@ const SignupPage: React.FC = () => {
               )}
             </div>
 
+            {/* Error Feedback */}
+            {signupError && (
+              <p className="text-center text-sm text-red-600 animate-pulse">{signupError}</p>
+            )}
+
+            {/* Submit Button */}
             <div>
               <button
                 type="submit"
-                disabled={loading || !selectedRole}
+                disabled={isLoading || !selectedRole}
                 className="group relative w-full flex justify-center py-3 px-4 border border-transparent text-sm font-medium rounded-xl text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-300 transform hover:scale-105 hover:shadow-lg"
               >
-                {loading ? (
+                {isLoading ? (
                   <div className="flex items-center">
                     <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
                     Creating Account...
@@ -223,6 +267,7 @@ const SignupPage: React.FC = () => {
               </button>
             </div>
 
+            {/* Footer Link */}
             <div className="text-center">
               <p className="text-sm text-gray-600">
                 Already have an account?{' '}

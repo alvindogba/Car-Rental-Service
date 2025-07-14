@@ -2,31 +2,39 @@ import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useForm } from 'react-hook-form';
 import { Eye, EyeOff, Car } from 'lucide-react';
-import { useAuth } from '../contexts/AuthContext';
 import AnimatedSection from '../components/AnimatedSection';
+//import the useLogin mutation
+import { useLoginMutation } from '../../Store/Auth/authApi';
+import {setCredentials} from '../../Store/Auth/authSlice';
+import { useDispatch } from 'react-redux';
 
-interface LoginFormData {
-  email: string;
-  password: string;
-}
 
 const LoginPage: React.FC = () => {
   const [showPassword, setShowPassword] = useState(false);
-  const { login, loading } = useAuth();
+  const [login, { isLoading }] = useLoginMutation();
   const navigate = useNavigate();
-
+  const dispatch = useDispatch();
   const {
     register,
     handleSubmit,
     formState: { errors }
-  } = useForm<LoginFormData>();
+  } = useForm();
 
-  const onSubmit = async (data: LoginFormData) => {
+  const onSubmit = async (data: any) => {
     try {
-      await login(data.email, data.password);
-      navigate('/renter-dashboard'); // Default to renter dashboard for demo
-    } catch (error) {
+      const response = await login(data).unwrap();
+      dispatch(setCredentials(response));
+      console.log(response);
+      
+      // Redirect based on user role
+      if (response.user.role === 'owner') {
+        navigate('/owner-dashboard');
+      } else {
+        navigate('/renter-dashboard'); // Default to renter dashboard
+      }
+    } catch (error: any) {
       console.error('Login failed:', error);
+      // You could add error handling here, e.g., showing an error message
     }
   };
 
@@ -64,7 +72,7 @@ const LoginPage: React.FC = () => {
                 placeholder="Enter your email"
               />
               {errors.email && (
-                <p className="mt-1 text-sm text-red-600 animate-pulse">{errors.email.message}</p>
+                <p className="mt-1 text-sm text-red-600 animate-pulse">{errors.email.message as string}</p>
               )}
             </div>
 
@@ -94,7 +102,7 @@ const LoginPage: React.FC = () => {
                 </button>
               </div>
               {errors.password && (
-                <p className="mt-1 text-sm text-red-600 animate-pulse">{errors.password.message}</p>
+                <p className="mt-1 text-sm text-red-600 animate-pulse">{errors.password.message as string}</p>
               )}
             </div>
 
@@ -121,10 +129,10 @@ const LoginPage: React.FC = () => {
             <div>
               <button
                 type="submit"
-                disabled={loading}
+                disabled={isLoading}
                 className="group relative w-full flex justify-center py-3 px-4 border border-transparent text-sm font-medium rounded-xl text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-300 transform hover:scale-105 hover:shadow-lg"
               >
-                {loading ? (
+                {isLoading ? (
                   <div className="flex items-center">
                     <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
                     Signing In...
