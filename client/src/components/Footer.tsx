@@ -10,9 +10,6 @@ const Footer: React.FC = () => {
           {/* Brand */}
           <div className="col-span-1 md:col-span-2">
             <div className="flex items-center space-x-2 mb-4">
-              <div className="bg-blue-600 p-2 rounded-lg">
-                <Car className="h-8 w-8 text-white" />
-              </div>
               <span className="text-2xl font-bold">RideShare LR</span>
             </div>
             <p className="text-gray-400 mb-6 max-w-md text-lg leading-relaxed">

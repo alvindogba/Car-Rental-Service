@@ -39,16 +39,13 @@ const LoginPage: React.FC = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-blue-100 flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
-      <AnimatedSection className="max-w-md w-full space-y-8">
+    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-blue-100 flex items-center justify-center md:py-12 px-4 sm:px-6 lg:px-8">
+      <AnimatedSection className="max-w-md w-full md:space-y-8">
         <div className="text-center">
-          <div className="mx-auto h-16 w-16 flex items-center justify-center bg-blue-600 rounded-2xl shadow-lg transform hover:scale-110 transition-transform duration-300">
-            <Car className="h-10 w-10 text-white" />
-          </div>
-          <h2 className="mt-6 text-center text-3xl font-extrabold text-gray-900">
+          <h2 className="text-center text-3xl font-extrabold text-gray-900">
             Welcome Back!
           </h2>
-          <p className="mt-2 text-center text-sm text-gray-600">
+          <p className="mt-2 mb-2 text-center text-sm text-gray-600">
             Login to your RideShare LR account
           </p>
         </div>

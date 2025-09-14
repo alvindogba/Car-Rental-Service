@@ -55,7 +55,11 @@ const SignupPage: React.FC = () => {
       const response = await signUp(signupData).unwrap();
       dispatch(setCredentials(response));
       reset(); // Clear form
-      navigate('/login');
+      if (response.user.role === 'owner') {
+        navigate('/owner-dashboard');
+      } else {
+        navigate('/renter-dashboard');
+      }
     } catch (error: any) {
       console.error('Signup failed:', error);
       setSignupError(error?.data?.message || 'Signup failed. Please try again.');

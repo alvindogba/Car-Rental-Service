@@ -1,113 +1,24 @@
-import React, { useState } from 'react';
+import React, { useMemo, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { Search, Filter, Star, DollarSign, Users, Fuel, MapPin, Heart } from 'lucide-react';
 import AnimatedSection from '../components/AnimatedSection';
 import AnimatedCounter from '../components/AnimatedCounter';
+import { useListVehiclesQuery } from '../../Store/Vehicle/vehicleApi';
 
-interface Vehicle {
+type Vehicle = {
   id: string;
   make: string;
   model: string;
   year: number;
   pricePerDay: number;
-  rating: number;
-  image: string;
-  type: string;
-  seats: number;
-  fuel: string;
-  location: string;
+  rating?: number | null;
+  images?: string[];
+  type?: string;
+  seats?: number;
+  fuel?: string;
+  location?: string;
   available: boolean;
-  featured?: boolean;
-}
-
-const mockVehicles: Vehicle[] = [
-  {
-    id: '1',
-    make: 'Toyota',
-    model: 'Camry',
-    year: 2020,
-    pricePerDay: 45,
-    rating: 4.8,
-    image: 'https://images.pexels.com/photos/116675/pexels-photo-116675.jpeg?auto=compress&cs=tinysrgb&w=600',
-    type: 'Sedan',
-    seats: 5,
-    fuel: 'Gasoline',
-    location: 'Monrovia',
-    available: true,
-    featured: true
-  },
-  {
-    id: '2',
-    make: 'Nissan',
-    model: 'Pathfinder',
-    year: 2019,
-    pricePerDay: 60,
-    rating: 4.6,
-    image: 'https://images.pexels.com/photos/3422964/pexels-photo-3422964.jpeg?auto=compress&cs=tinysrgb&w=600',
-    type: 'SUV',
-    seats: 7,
-    fuel: 'Gasoline',
-    location: 'Paynesville',
-    available: true
-  },
-  {
-    id: '3',
-    make: 'Honda',
-    model: 'Civic',
-    year: 2021,
-    pricePerDay: 35,
-    rating: 4.7,
-    image: 'https://images.pexels.com/photos/1545743/pexels-photo-1545743.jpeg?auto=compress&cs=tinysrgb&w=600',
-    type: 'Compact',
-    seats: 5,
-    fuel: 'Gasoline',
-    location: 'Sinkor',
-    available: true
-  },
-  {
-    id: '4',
-    make: 'Toyota',
-    model: 'Highlander',
-    year: 2018,
-    pricePerDay: 55,
-    rating: 4.5,
-    image: 'https://images.pexels.com/photos/1729931/pexels-photo-1729931.jpeg?auto=compress&cs=tinysrgb&w=600',
-    type: 'SUV',
-    seats: 8,
-    fuel: 'Gasoline',
-    location: 'Congo Town',
-    available: true,
-    featured: true
-  },
-  {
-    id: '5',
-    make: 'Ford',
-    model: 'Explorer',
-    year: 2020,
-    pricePerDay: 50,
-    rating: 4.4,
-    image: 'https://images.pexels.com/photos/1592384/pexels-photo-1592384.jpeg?auto=compress&cs=tinysrgb&w=600',
-    type: 'SUV',
-    seats: 7,
-    fuel: 'Gasoline',
-    location: 'New Kru Town',
-    available: true
-  },
-  {
-    id: '6',
-    make: 'Hyundai',
-    model: 'Elantra',
-    year: 2021,
-    pricePerDay: 30,
-    rating: 4.3,
-    image: 'https://images.pexels.com/photos/164634/pexels-photo-164634.jpeg?auto=compress&cs=tinysrgb&w=600',
-    type: 'Sedan',
-    seats: 5,
-    fuel: 'Gasoline',
-    location: 'Monrovia',
-    available: true
-  }
-];
+};
 
 const VehicleBrowser: React.FC = () => {
   const [searchTerm, setSearchTerm] = useState('');
@@ -119,7 +30,10 @@ const VehicleBrowser: React.FC = () => {
   const vehicleTypes = ['All', 'Sedan', 'SUV', 'Compact', 'Hatchback'];
   const priceRanges = ['All', '$20-40', '$40-60', '$60+'];
 
-  const filteredVehicles = mockVehicles.filter(vehicle => {
+  const { data: vehicles = [], isLoading } = useListVehiclesQuery();
+  console.log(vehicles);
+
+  const filteredVehicles = useMemo(() => (vehicles as Vehicle[]).filter(vehicle => {
     const matchesSearch = vehicle.make.toLowerCase().includes(searchTerm.toLowerCase()) ||
                          vehicle.model.toLowerCase().includes(searchTerm.toLowerCase());
     const matchesType = selectedType === 'All' || vehicle.type === selectedType;
@@ -129,7 +43,7 @@ const VehicleBrowser: React.FC = () => {
                         (priceRange === '$60+' && vehicle.pricePerDay >= 60);
     
     return matchesSearch && matchesType && matchesPrice;
-  });
+  }), [vehicles, searchTerm, selectedType, priceRange]);
 
   const toggleFavorite = (vehicleId: string) => {
     setFavorites(prev => 
@@ -276,7 +190,10 @@ const VehicleBrowser: React.FC = () => {
 
         {/* Vehicle Grid */}
         <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
-          {filteredVehicles.map((vehicle, index) => (
+          {isLoading && (
+            <div className="col-span-full text-center text-gray-600">Loading vehicles...</div>
+          )}
+          {!isLoading && filteredVehicles.map((vehicle, index) => (
             <AnimatedSection 
               key={vehicle.id} 
               animation="fadeInUp" 
@@ -286,21 +203,25 @@ const VehicleBrowser: React.FC = () => {
               {/* Image Container */}
               <div className="relative overflow-hidden">
                 <img
-                  src={vehicle.image}
+                  src={vehicle.images?.[0]}
                   alt={`${vehicle.make} ${vehicle.model}`}
                   className="w-full h-56 object-cover transition-transform duration-500 group-hover:scale-110"
                 />
                 
                 {/* Badges */}
                 <div className="absolute top-4 left-4 flex flex-col space-y-2">
-                  {vehicle.featured && (
-                    <span className="bg-yellow-400 text-yellow-900 px-3 py-1 rounded-full text-xs font-semibold animate-pulse">
-                      Featured
-                    </span>
-                  )}
-                  <span className="bg-green-500 text-white px-3 py-1 rounded-full text-xs font-semibold">
-                    Available
-                  </span>
+                  {/* change the color of the badge to red if the vehicle is not available */}
+                  {
+                    vehicle.available ?(
+                      <span className="bg-green-500 text-white px-3 py-1 rounded-full text-xs font-semibold">
+                      Available
+                      </span>
+                    ):(
+                      <span className="bg-red-500 text-white px-3 py-1 rounded-full text-xs font-semibold">
+                      Not Available
+                      </span>
+                    )
+                  }
                 </div>
 
                 {/* Favorite Button */}
@@ -334,7 +255,7 @@ const VehicleBrowser: React.FC = () => {
                 <div className="flex items-center mb-4">
                   <div className="flex items-center mr-4">
                     <Star className="h-4 w-4 text-yellow-400 fill-current" />
-                    <span className="text-sm text-gray-600 ml-1 font-medium">{vehicle.rating}</span>
+                    <span className="text-sm text-gray-600 ml-1 font-medium">{vehicle.rating ?? 4.5}</span>
                   </div>
                   <div className="flex items-center text-sm text-gray-600">
                     <MapPin className="h-4 w-4 mr-1" />

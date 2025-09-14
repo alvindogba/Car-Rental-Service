@@ -1,6 +1,6 @@
 //authApi.ts
-import { createApi, fetchBaseQuery } from "@reduxjs/toolkit/query/react";
-import {RootState} from "../store";
+import { createApi } from "@reduxjs/toolkit/query/react";
+import { baseQuery } from "../baseQuery";
 import { User } from "./authSlice";
 
 // Define the login response type to match LoginPayload in authSlice
@@ -9,19 +9,7 @@ interface LoginResponse {
     token: string;
 }
 
-const backendUrl = import.meta.env.VITE_APP_BACKEND_URL;
-
-//create the base query and add the token to the headers
-const baseQuery = fetchBaseQuery({
-    baseUrl: backendUrl,
-    prepareHeaders: (headers, { getState }) => {
-        const token = (getState() as RootState).auth.token;
-        if (token) {
-            headers.set("authorization", `Bearer ${token}`);
-        }
-        return headers;
-    },
-});
+// baseQuery imported above includes auth header
 
 export const authApi = createApi({
     reducerPath: "authApi",

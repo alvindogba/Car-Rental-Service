@@ -3,8 +3,7 @@ import { Link } from 'react-router-dom';
 import { Car, DollarSign, Shield, CreditCard, Smartphone, Play, CheckCircle, Users, Star } from 'lucide-react';
 import AnimatedSection from '../components/AnimatedSection';
 import AnimatedCounter from '../components/AnimatedCounter';
-import momoLogo from '../assets/images/momoLogo.png';
-import orangeMoneyLogo from '../assets/images/orangeMoneyLogo.png';
+
 
 const HomePage: React.FC = () => {
   return (
@@ -317,38 +316,30 @@ const HomePage: React.FC = () => {
               </p>
             </AnimatedSection>
 
-            <AnimatedSection animation="scaleIn" delay={200} className="bg-gradient-to-br from-orange-50 to-orange-100 p-8 rounded-2xl text-center group hover:shadow-xl transition-all duration-300 transform hover:-translate-y-2">
+            <AnimatedSection animation="scaleIn" delay={200} className="bg-gradient-to-br from-indigo-50 to-indigo-100 p-8 rounded-2xl text-center group hover:shadow-xl transition-all duration-300 transform hover:-translate-y-2">
               <div className="relative mb-6">
-                <img
-                  src={orangeMoneyLogo}
-                  alt="Orange Money payment"
-                  className="w-20 h-20 object-cover rounded-full mx-auto shadow-lg transition-transform duration-300 group-hover:scale-110"
-                />
-                <div className="absolute -bottom-2 -right-8 bg-orange-600 p-2 rounded-full animate-bounce">
+                <div className="w-20 h-20 flex items-center justify-center bg-white rounded-full mx-auto shadow-lg transition-transform duration-300 group-hover:scale-110">
+                  <Smartphone className="h-8 w-8 text-indigo-600" />
+                </div>
+                <div className="absolute -bottom-2 -right-8 bg-indigo-600 p-2 rounded-full animate-bounce">
                   <Smartphone className="h-6 w-6 text-white" />
                 </div>
               </div>
-              <h3 className="text-xl font-semibold mb-3">Orange Money</h3>
-              <p className="text-gray-600">
-                Pay with your Orange Money account. Fast and convenient for all Orange users across Liberia.
-              </p>
+              <h3 className="text-xl font-semibold mb-3">Apple Pay / Google Pay</h3>
+              <p className="text-gray-600">Use supported wallets for a fast, secure checkout.</p>
             </AnimatedSection>
 
-            <AnimatedSection animation="scaleIn" delay={300} className="bg-gradient-to-br from-red-50 to-red-100 p-8 rounded-2xl text-center group hover:shadow-xl transition-all duration-300 transform hover:-translate-y-2">
+            <AnimatedSection animation="scaleIn" delay={300} className="bg-gradient-to-br from-yellow-50 to-yellow-100 p-8 rounded-2xl text-center group hover:shadow-xl transition-all duration-300 transform hover:-translate-y-2">
               <div className="relative mb-6">
-                <img
-                  src={momoLogo}
-                  alt="Lonestar Mobile Money payment"
-                  className="w-20 h-20 object-cover rounded-full mx-auto shadow-lg transition-transform duration-300 group-hover:scale-110"
-                />
-                <div className="absolute -bottom-2 -right-8 bg-red-600 p-2 rounded-full animate-bounce">
-                  <Smartphone className="h-6 w-6 text-white" />
+                <div className="w-20 h-20 flex items-center justify-center bg-white rounded-full mx-auto shadow-lg transition-transform duration-300 group-hover:scale-110">
+                  <Shield className="h-8 w-8 text-yellow-600" />
+                </div>
+                <div className="absolute -bottom-2 -right-8 bg-yellow-600 p-2 rounded-full animate-bounce">
+                  <Shield className="h-6 w-6 text-white" />
                 </div>
               </div>
-              <h3 className="text-xl font-semibold mb-3">Lonestar Mobile Money</h3>
-              <p className="text-gray-600">
-                Use your Lonestar Mobile Money to pay. Simple and trusted by thousands of Liberians.
-              </p>
+              <h3 className="text-xl font-semibold mb-3">Stripe Secure Checkout</h3>
+              <p className="text-gray-600">Industry-standard security powered by Stripe for peace of mind.</p>
             </AnimatedSection>
           </div>
         </div>
@@ -426,7 +417,7 @@ const HomePage: React.FC = () => {
                 </div>
               </div>
               <p className="text-gray-600 italic">
-                "Best car rental service in Liberia! Orange Money payment made everything so convenient. Highly recommended!"
+                "Best car rental service in Liberia! Checkout was quick and secure. Highly recommended!"
               </p>
             </AnimatedSection>
           </div>

@@ -2,16 +2,15 @@ import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { Car, Menu, X, User, LogOut } from 'lucide-react';
 import { removeCredentials } from '../../Store/Auth/authSlice';
-import { useDispatch } from 'react-redux';
-//import the getCurrentUser query
-import {useGetCurrentUserQuery} from '../../Store/Auth/authApi';
+import { useDispatch, useSelector } from 'react-redux';
+import type { RootState } from '../../Store/store';
 
 const Navbar: React.FC = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const dispatch = useDispatch();
   const navigate = useNavigate();
-  //extrict the user data from the getCurrentUser query
-  const { data: user } = useGetCurrentUserQuery();
+  // Read auth state from Redux so header updates immediately
+  const { token, user } = useSelector((state: RootState) => state.auth);
 
   const handleLogout = () => {
     dispatch(removeCredentials());
@@ -28,9 +27,6 @@ const Navbar: React.FC = () => {
         <div className="flex justify-between items-center h-16">
           {/* Logo */}
           <Link to="/" className="flex items-center space-x-2 group">
-            <div className="bg-blue-600 p-2 rounded-lg group-hover:bg-blue-700 transition-colors duration-300">
-              <Car className="h-6 w-6 text-white" />
-            </div>
             <span className="text-xl font-bold text-gray-900 group-hover:text-blue-600 transition-colors duration-300">
               RideShare LR
             </span>
@@ -45,7 +41,7 @@ const Navbar: React.FC = () => {
               Browse Cars
               <span className="absolute bottom-0 left-0 w-0 h-0.5 bg-blue-600 group-hover:w-full transition-all duration-300"></span>
             </Link>
-            {user ? (
+            {token ? (
               <div className="flex items-center space-x-4">
                 <Link 
                   to={user.role === 'renter' ? '/renter-dashboard' : '/owner-dashboard'} 
@@ -59,7 +55,7 @@ const Navbar: React.FC = () => {
                     <div className="w-8 h-8 bg-blue-100 rounded-full flex items-center justify-center">
                       <User className="h-4 w-4 text-blue-600" />
                     </div>
-                    <span>{user.name}</span>
+                    <span>{user?.name || 'User'}</span>
                   </button>
                   <div className="absolute right-0 mt-2 w-48 bg-white rounded-lg shadow-lg opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 transform translate-y-2 group-hover:translate-y-0">
                     <div className="py-1">
@@ -122,7 +118,7 @@ const Navbar: React.FC = () => {
             >
               Browse Cars
             </Link>
-            {user ? (
+            {token ? (
               <>
                 <Link 
                   to={user.role === 'renter' ? '/renter-dashboard' : '/owner-dashboard'} 

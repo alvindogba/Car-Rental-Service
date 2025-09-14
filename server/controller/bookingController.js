@@ -38,6 +38,8 @@ export const createBooking = async (req, res) => {
       totalPrice,
       status: "pending",
     });
+
+    await db.Vehicle.update({ available: false }, { where: { id: vehicleId } });
     res.status(201).json(booking);
   } catch (err) {
     res.status(500).json({ message: "Failed to create booking", error: err.message });
