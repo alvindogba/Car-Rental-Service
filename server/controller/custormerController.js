@@ -30,8 +30,23 @@ export const createNewCustomer = async (req, res) => {
       role,
       password: hashedPassword
     });
+    // Create JWT
+    const token = jwt.sign(
+      { id: customer.id, email: customer.email, role: customer.role },
+      JWT_SECRET,
+      { expiresIn: "1d" }
+    );
 
-    res.status(201).json({ message: "Customer created", customer });
+    res.status(201).json({
+      token,
+      user: {
+        id: customer.id,
+        name: customer.name,
+        email: customer.email,
+        role: customer.role,
+        phone: customer.phone,
+      },
+    });
   } catch (error) {
     console.error(error.message);
     res.status(500).json({ message: "Internal server error", error: error.message });
@@ -69,7 +84,6 @@ export const customerLogIn = async (req, res) => {
     );
     console.log("token", token)
     res.status(200).json({
-  
       token,
       user: {
         id: customer.id,
@@ -79,6 +93,72 @@ export const customerLogIn = async (req, res) => {
         phone: customer.phone,
       },
     });
+  } catch (error) {
+    console.error(error.message);
+    res.status(500).json({ message: "Internal server error", error: error.message });
+  }
+};
+
+// Get current user from token
+export const currentUser = async (req, res) => {
+  try {
+    const { id } = req.user; // set by requireAuth
+    const customer = await db.User.findByPk(id);
+    if (!customer) {
+      return res.status(404).json({ message: "User not found" });
+    }
+    res.status(200).json({
+      id: customer.id,
+      name: customer.name,
+      email: customer.email,
+      role: customer.role,
+      phone: customer.phone,
+    });
+  } catch (error) {
+    console.error(error.message);
+    res.status(500).json({ message: "Internal server error", error: error.message });
+  }
+};
+
+// Update user
+export const updateUser = async (req, res) => {
+  try {
+    const { id } = req.params;
+    // Allow user update only themselves, or admins (not defined) — for now self-only
+    if (req.user.id !== id) {
+      return res.status(403).json({ message: "Forbidden" });
+    }
+    const { name, email, password, role, phone } = req.body;
+    const updates = { name, email, role, phone };
+    if (password) {
+      updates.password = await bcrypt.hash(password, 10);
+    }
+    const [count] = await db.User.update(updates, { where: { id } });
+    if (!count) return res.status(404).json({ message: "User not found" });
+    const customer = await db.User.findByPk(id);
+    res.status(200).json({
+      id: customer.id,
+      name: customer.name,
+      email: customer.email,
+      role: customer.role,
+      phone: customer.phone,
+    });
+  } catch (error) {
+    console.error(error.message);
+    res.status(500).json({ message: "Internal server error", error: error.message });
+  }
+};
+
+// Delete user
+export const deleteUser = async (req, res) => {
+  try {
+    const { id } = req.params;
+    if (req.user.id !== id) {
+      return res.status(403).json({ message: "Forbidden" });
+    }
+    const count = await db.User.destroy({ where: { id } });
+    if (!count) return res.status(404).json({ message: "User not found" });
+    res.status(200).json({ message: "User deleted" });
   } catch (error) {
     console.error(error.message);
     res.status(500).json({ message: "Internal server error", error: error.message });

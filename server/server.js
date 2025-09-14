@@ -4,7 +4,10 @@ import express from 'express'
 import cors from 'cors'
 import db from './models/index.js';
 import customerRouter from './Router/custormerRouts.js';
-import { createApiUser, generateMomoApiKey } from './Utils/momo.js';
+import vehicleRouter from './Router/vehicleRoutes.js';
+import bookingRouter from './Router/bookingRoutes.js';
+import paymentRouter from './Router/paymentRoutes.js';
+// import { createApiUser, generateMomoApiKey } from './Utils/momo.js';
 
 
 const app = express()
@@ -15,30 +18,30 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(cors());
 
-// auth routes
+// routes
 app.use("/auth", customerRouter);
+app.use("/vehicles", vehicleRouter);
+app.use("/bookings", bookingRouter);
+app.use("/payments", paymentRouter);
 
 
 
-app.get('/create-momo-user', (req, res) => {
-  const response = createApiUser()
-  res.json(response)
-  console.log(response)
-})
-
-app.get('/generate-momo-apikey', (req, res) => {
-  const apiKey = generateMomoApiKey()
-  res.json(apiKey.data  )
-  console.log(apiKey.data)
-})
+// Deprecated momo sandbox routes are disabled as we migrated to Stripe
 
 app.get('/', (req, res) => {
   res.send("Hello World!")
 })
 
-app.listen(port, ()=>{
-  db.sequelize.authenticate().then(() => {
-    console.log('Connection has been established successfully.');
-  })
-    console.log(`Server is running on port ${port}`)
-})
+app.listen(port, async () => {
+  try {
+    await db.sequelize.authenticate();
+    console.log('DB connection established.');
+    if (process.env.DB_SYNC === 'true') {
+      await db.sequelize.sync();
+      console.log('DB synced.');
+    }
+  } catch (err) {
+    console.error('DB connection failed:', err.message);
+  }
+  console.log(`Server is running on port ${port}`);
+});
